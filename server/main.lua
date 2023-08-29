@@ -1,4 +1,34 @@
-ESX = exports['es_extended']:getSharedObject()
+local Items = { }
+ESX = nil
+
+if Config.NewESX then
+	ESX = exports['es_extended']:getSharedObject()
+else
+	TriggerEvent('esx:getSharedObject', function(obj)
+        ESX = obj
+    end)
+end
+
+local function GetItems()
+	exports.oxmysql:query("SELECT * FROM items WHERE 1", {}, function(items)	
+		for _, v in ipairs(items) do
+			Items[v.name] = v
+		end	
+	end)
+end
+
+CreateThread(function()
+	GetItems()
+end)
+
+ESX.RegisterServerCallback('renzu:server:getItems', function(source, cb)
+	if not Items or #Items <= 0 then
+		GetItems()
+	end
+	Wait(500)
+	cb(Items)
+end)
+
 local props = {}
 RegisterNetEvent("esx_multicharacter:relog", function()
 	local source = source
