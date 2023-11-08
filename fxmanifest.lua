@@ -1,4 +1,3 @@
-shared_script '@renzu_shield/init.lua' 
 fx_version "adamant"
 
 games { 'gta5'}
@@ -15,13 +14,4 @@ client_scripts {
 server_scripts {
 	'config.lua',
 	'server/main.lua'
-}
-
-files {
-	'components.json',
-	'html/index.html',
-	'html/script.js',
-	'html/style.css',
-	'html/levelup.gif',
-    'html/audio/*.ogg',
 }
