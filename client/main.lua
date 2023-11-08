@@ -5,6 +5,8 @@ local loaded = false
 local compodata = {}
 local itemsdb = {}
 local PlayerData = {}
+local hasPlayerSpawned = false
+
 Citizen.CreateThread(function()
     Wait(1)
 
@@ -92,12 +94,14 @@ end
 function GetInventory()
     ESX.TriggerServerCallback('core_inventory:server:getInventory', function(data)
         inv = data
+        if hasPlayerSpawned then
+            SetTimeout(1000, GetInventory) -- Keep the loop running with updated inventory
+        end
     end)
-
-    SetTimeout(1000, GetInventory)
 end
 
 RegisterNetEvent('esx:playerLoaded', function(playerData)
+    hasPlayerSpawned = true
     for k, v in pairs(onback) do
         if DoesEntityExist(v.entity) then
             DeleteAttachments(v)
@@ -119,6 +123,7 @@ AddEventHandler('esx:onPlayerLogout', function()
         end
     end
     onback = {}
+    hasPlayerSpawned = false
 end)
 
 RegisterNetEvent('esx:setJob')
@@ -154,8 +159,7 @@ ItemBack = function(name, data)
 
     local data = Config[itemname] or Config[string.upper(itemname)]
     local save = false
-    if data and not onback[itemname] and currentWeapon and itemname ~= currentWeapon.name or currentWeapon == nil and
-        data and not onback[itemname] then
+    if data and not onback[itemname] and ((currentWeapon and itemname ~= currentWeapon.name) or not currentWeapon) then
         local model = data["model"]
         local ped = cache.ped
         local bone = GetPedBoneIndex(ped, data["back_bone"])
@@ -272,12 +276,69 @@ RegisterCommand('toggleprops', function(source, args)
 end)
 
 function ReqAndDelete(object, detach)
-    if NetworkGetEntityIsNetworked(object) then
-        if DoesEntityExist(object) and NetworkGetEntityOwner(object) == PlayerId() then
+    if detach then
+        DetachEntity(object, true, true)
+    end
+
+    if DoesEntityExist(object) then
+        if NetworkGetEntityIsNetworked(object) then
+            NetworkRequestControlOfEntity(object)
+            local timeout = 2000
+            while timeout > 0 and not NetworkHasControlOfEntity(object) do
+                Wait(100)
+                timeout = timeout - 100
+            end
+
             TriggerServerEvent('deleteentity', NetworkGetNetworkIdFromEntity(object))
+        else
+            SetEntityAsNoLongerNeeded(object)
+            DeleteEntity(object)
         end
     else
         DeleteEntity(object)
         SetEntityCoords(object, 0.0, 0.0, 0.0)
     end
 end
+
+----
+function CleanupOnRestart()
+    if onback then
+        for itemName, itemData in pairs(onback) do
+            if itemData.entity and DoesEntityExist(itemData.entity) then
+                DeleteEntity(itemData.entity)
+            end
+        end
+    end
+    onback = {} -- Initialize the onback table if it doesn't exist
+    -- Clear the inventory cache
+    inv = {}
+    -- Clear the current weapon variable
+    currentWeapon = nil
+    currentWeaponInventory = nil
+end
+------------
+function CleanupProps()
+    for _, prop in pairs(onback) do
+        -- Delete the main weapon object
+        if DoesEntityExist(prop.entity) then
+            DeleteEntity(prop.entity)
+        end
+
+        -- Delete any associated components
+        if prop.components then
+            for _, compNetId in pairs(prop.components) do
+                local compEnt = NetworkGetEntityFromNetworkId(compNetId)
+                if DoesEntityExist(compEnt) then
+                    DeleteEntity(compEnt)
+                end
+            end
+        end
+    end
+end
+-- Call CleanupOnRestart when the script is restarted
+AddEventHandler('onResourceStop', function(resourceName)
+    if GetCurrentResourceName() == resourceName then
+        CleanupOnRestart()
+        CleanupProps()
+    end
+end)
