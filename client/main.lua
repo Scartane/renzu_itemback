@@ -44,7 +44,9 @@ Citizen.CreateThread(function()
             end
             compodata[compo] = v
         end
-
+        if PlayerData then 
+            hasPlayerSpawned = true
+        end
         Loop()
         GetInventory()
     end)
