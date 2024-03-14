@@ -95,7 +95,10 @@ function GetInventory()
     ESX.TriggerServerCallback('core_inventory:server:getInventory', function(data)
         inv = data
         if hasPlayerSpawned then
-            SetTimeout(1000, GetInventory) -- Keep the loop running with updated inventory
+            SetTimeout(5000, GetInventory) -- Keep the loop running with updated inventory
+        else
+            Wait(5000)
+            GetInventory()
         end
     end)
 end
@@ -110,6 +113,8 @@ RegisterNetEvent('esx:playerLoaded', function(playerData)
     end
     PlayerData = playerData
     onback = {}
+    Loop()
+    GetInventory()
 end)
 
 startingup = true
