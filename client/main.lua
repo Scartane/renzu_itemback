@@ -46,9 +46,9 @@ Citizen.CreateThread(function()
         end
         if PlayerData then 
             hasPlayerSpawned = true
+            Loop()
+            GetInventory()
         end
-        Loop()
-        GetInventory()
     end)
 end)
 
@@ -62,7 +62,7 @@ function Loop()
             local callbackEnd = false
             local added = {}
 
-            local weaponEquiped = exports['core_inventory']:getWeaponEquiped()
+            local weaponEquiped = exports['core_inventory']:getWeaponEquiped()            
 
             if weaponEquiped then
                 inv['primary-weaponEquiped'] = weaponEquiped.primary

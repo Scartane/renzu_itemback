@@ -3,6 +3,7 @@
 In **core_inventory resource folder**, locate `/client/main.lua` and add this event at the end of the file :
 ```lua 
 exports('getWeaponEquiped', function()
+    if not cid then return nil end
     return { 
         primary = Holders['primary-'.. cid],
         secondry = Holders['secondry-'.. cid],
