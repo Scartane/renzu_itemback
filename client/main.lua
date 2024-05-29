@@ -7,20 +7,7 @@ local itemsdb = {}
 local PlayerData = {}
 local hasPlayerSpawned = false
 
-Citizen.CreateThread(function()
-    Wait(1)
-
-    while ESX == nil do
-        if Config.NewESX then
-            ESX = exports['es_extended']:getSharedObject()
-        else
-            TriggerEvent('esx:getSharedObject', function(obj)
-                ESX = obj
-            end)
-        end
-        Citizen.Wait(50)
-    end
-
+local function initClientData(hasPlayerLoad)
     ESX.TriggerServerCallback('renzu:server:getItems', function(data)
         itemsdb = data
 
@@ -44,17 +31,43 @@ Citizen.CreateThread(function()
             end
             compodata[compo] = v
         end
+        CleanupOnRestart()
+        CleanupProps()
         if PlayerData then 
             hasPlayerSpawned = true
+            Loop()
+            GetInventory()    
         end
-        Loop()
-        GetInventory()
     end)
+end
+
+CreateThread(function()
+    Wait(1)
+
+    while ESX == nil do
+        if Config.NewESX then
+            ESX = exports['es_extended']:getSharedObject()
+        else
+            TriggerEvent('esx:getSharedObject', function(obj)
+                ESX = obj
+            end)
+        end
+        Citizen.Wait(50)
+    end
+
+    initClientData()
 end)
 
 local onback = {}
 local items = {}
 local inv = {}
+
+
+RegisterNetEvent('renzu_itemback:startLoop', function()
+    Wait(2500)
+    Loop()
+    GetInventory()
+end)
 
 function Loop()
     CreateThread(function()
@@ -107,16 +120,9 @@ end
 
 RegisterNetEvent('esx:playerLoaded', function(playerData)
     hasPlayerSpawned = true
-    for k, v in pairs(onback) do
-        if DoesEntityExist(v.entity) then
-            DeleteAttachments(v)
-            ReqAndDelete(v.entity)
-        end
-    end
-    PlayerData = playerData
-    onback = {}
-    Loop()
-    GetInventory()
+    CleanupOnRestart()
+    CleanupProps()
+    initClientData(hasPlayerSpawned)
 end)
 
 startingup = true
