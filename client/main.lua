@@ -34,9 +34,7 @@ local function initClientData(hasPlayerLoad)
         CleanupOnRestart()
         CleanupProps()
         if PlayerData then 
-            hasPlayerSpawned = true
-            Loop()
-            GetInventory()    
+            hasPlayerSpawned = true 
         end
     end)
 end
@@ -62,6 +60,10 @@ local onback = {}
 local items = {}
 local inv = {}
 
+RegisterCommand('rib_restart', function()
+    Loop()
+    GetInventory()
+end)
 
 RegisterNetEvent('renzu_itemback:startLoop', function()
     Wait(2500)
@@ -75,7 +77,7 @@ function Loop()
             local callbackEnd = false
             local added = {}
 
-            local weaponEquiped = exports['core_inventory']:getWeaponEquiped()            
+            local weaponEquiped = exports['core_inventory']:getWeaponEquiped()
 
             if weaponEquiped then
                 inv['primary-weaponEquiped'] = weaponEquiped.primary

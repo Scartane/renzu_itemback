@@ -22,6 +22,7 @@ Finally, in the same file, locate the `function useWeapon(weapon, inventory)` an
 ```lua
 TriggerEvent('core_inventory:custom:handleWeapon', currentWeapon, currentWeaponData, currentWeaponInventory)
 ```
+# If you restart the script and you are in game, item won"t be display until you do the command `rib_restart`
 
 This script need to be start **after** core_inventory
 
