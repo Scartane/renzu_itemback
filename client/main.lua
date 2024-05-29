@@ -75,7 +75,7 @@ function Loop()
             local callbackEnd = false
             local added = {}
 
-            local weaponEquiped = exports['core_inventory']:getWeaponEquiped()
+            local weaponEquiped = exports['core_inventory']:getWeaponEquiped()            
 
             if weaponEquiped then
                 inv['primary-weaponEquiped'] = weaponEquiped.primary
