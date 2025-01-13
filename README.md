@@ -1,10 +1,10 @@
 # renzu_itemback [CORE INVENTORY COMPATIBLE]
 
 In **core_inventory resource folder**, find `/client/main.lua` and add this event at the end of the file :
-```lua 
+```lua
 exports('getWeaponEquiped', function()
     if not cid then return nil end
-    return { 
+    return {
         primary = Holders['primary-'.. cid],
         secondry = Holders['secondry-'.. cid],
         active = currentWeaponData,
@@ -18,10 +18,6 @@ Then, in the same file, locate the `RegisterNetEvent('esx:playerLoaded', functio
     TriggerEvent('renzu_itemback:startLoop')
 ```
 
-Finally, in the same file, locate the `function useWeapon(weapon, inventory)` and at the end of the function, before the last end that close it, add :
-```lua
-TriggerEvent('core_inventory:custom:handleWeapon', currentWeapon, currentWeaponData, currentWeaponInventory)
-```
 # If you restart the script and you are in game, item won"t be display until you do the command `rib_restart`
 
 This script need to be start **after** core_inventory

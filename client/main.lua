@@ -33,8 +33,8 @@ local function initClientData(hasPlayerLoad)
         end
         CleanupOnRestart()
         CleanupProps()
-        if PlayerData then 
-            hasPlayerSpawned = true 
+        if PlayerData then
+            hasPlayerSpawned = true
         end
     end)
 end
@@ -109,15 +109,13 @@ function Loop()
 end
 
 function GetInventory()
-    ESX.TriggerServerCallback('core_inventory:server:getInventory', function(data)
-        inv = data
-        if hasPlayerSpawned then
-            SetTimeout(5000, GetInventory) -- Keep the loop running with updated inventory
-        else
-            Wait(5000)
-            GetInventory()
-        end
-    end)
+    inv = exports.core_inventory:getInventory()
+    if hasPlayerSpawned then
+        SetTimeout(5000, GetInventory) -- Keep the loop running with updated inventory
+    else
+        Wait(5000)
+        GetInventory()
+    end
 end
 
 RegisterNetEvent('esx:playerLoaded', function(playerData)
@@ -243,7 +241,7 @@ DeleteAttachments = function(data)
     end
 end
 
-AddEventHandler('core_inventory:custom:handleWeapon', function(cwn, cw, cwi)
+AddEventHandler('core_inventory:client:handleWeapon', function(cwn, cw, cwi)
     if cwn == nil and currentWeapon ~= nil then
         ItemBack(currentWeapon.name, currentWeapon.metadata)
         currentWeapon = nil
